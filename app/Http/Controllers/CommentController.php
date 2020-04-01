@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Snipe\BanBuilder\CensorWords;
 use App\Comment;
 use DB;
 use Exception;
@@ -42,6 +43,10 @@ class CommentController extends Controller
         ->leftJoin('comments as c2', 'c2.parent_comment_id', '=', 'c1.comment_id')
         ->leftJoin('comments as c3', 'c3.parent_comment_id', '=', 'c2.comment_id')
         ->whereNull('c1.parent_comment_id')
+        ->where('c1.post_id', $data['post_id'])
+        ->orderBy('c1.created_at', 'desc')
+        ->orderBy('c2.created_at', 'desc')
+        ->orderBy('c3.created_at', 'desc')
         ->get();
 
         if (!$comments) {
@@ -59,18 +64,23 @@ class CommentController extends Controller
         }
 
         foreach ($comments as $commentL2) {
+
+          if (empty($commentL2->c2_comment_id)) {
+            continue;
+          }
+
           if (empty($layer2['c2_'.$commentL2->c2_comment_id])) {
             $layer2['c2_'.$commentL2->c2_comment_id] = $this->getC2Data($commentL2);
           }
         }
 
         foreach ($comments as $commentL3) {
-          if (empty($layer3['c3_'.$commentL3->c3_comment_id])) {
+          if (!empty($commentL3->c3_comment_id)) {
             $layer3[] = $this->getC3Data($commentL3);
           }
         }
 
-        if (count($layer3)) {
+        if (count($layer3) && count($layer2)) {
           foreach ($layer3 as $l3key => $l3) {
             foreach ($layer2 as $l2key => $l2) {
               if ($l3['parent_comment_id'] == $l2['comment_id']) {
@@ -90,10 +100,12 @@ class CommentController extends Controller
           }
         }
 
-pr($layer1);
-// pr($layer2);
-// pr($layer3);
-die();
+        if ($layer1) {
+          foreach ($layer1 as $data) {
+            $buildComment[] = $data;
+          }
+        }
+
         return response()->json(['data' => $buildComment]);
 
       } catch (Exception $e) {}
@@ -116,6 +128,12 @@ die();
         if ($validator->fails()) {
           throw new Exception($validator->messages()->first());
         }
+
+        $censor = new CensorWords;
+        $name = $censor->censorString($data['name']);
+        $comment = $censor->censorString($data['comment']);
+        $data['name'] = $name['clean'];
+        $data['comment'] = $comment['clean'];
 
         $comment = new Comment;
 

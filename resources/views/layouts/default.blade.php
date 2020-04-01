@@ -3,6 +3,9 @@
 <head>
   <title>Post Section</title>
   <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+  <script type="text/javascript">
+    var baseUrl = "{{ url('/') }}";
+  </script>
 </head>
 <body>
   <div id="app">

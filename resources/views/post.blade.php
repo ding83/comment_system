@@ -2,6 +2,8 @@
 
 @section('content')
 <div class="container">
+    <a href="{{ url('/') }}">Home</a> | 
+    <a href="{{ url('/posts') }}">Posts</a>
 
     <div class="row">
 
@@ -26,8 +28,7 @@
         <hr>
 
         <!-- Comments Form -->
-        <comment-form></comment-form>
-        <comments></comments>
+        <comments :post_id="{{$post->post_id}}"></comments>
 
       </div>
 

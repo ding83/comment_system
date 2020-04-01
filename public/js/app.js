@@ -1926,7 +1926,47 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-/* harmony default export */ __webpack_exports__["default"] = ({});
+/* harmony default export */ __webpack_exports__["default"] = ({
+  props: ['post_id'],
+  data: function data() {
+    return {
+      name: '',
+      comment: '',
+      parent_comment_id: null
+    };
+  },
+  methods: {
+    submitComment: function submitComment() {
+      var _this = this;
+
+      var data = {
+        name: this.name,
+        comment: this.comment,
+        post_id: this.post_id,
+        parent_comment_id: this.parent_comment_id
+      };
+      this.$store.dispatch('commentPost', data).then(function (response) {
+        console.log(response);
+      }, function (error) {
+        console.log(error.response.data);
+      })["finally"](function () {});
+      this.$store.dispatch('fetchComments', {
+        post_id: this.post_id
+      }).then(function (response) {
+        if (typeof response.data.data != 'undefined') {
+          _this.$store.commit('updateComments', response.data.data);
+        }
+
+        _this.$parent.comments = response.data.data;
+      }, function (error) {
+        console.log(error.response.data);
+      })["finally"](function () {
+        _this.name = '';
+        _this.comment = '';
+      });
+    }
+  }
+});
 
 /***/ }),
 
@@ -1939,6 +1979,7 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
 //
 //
 //
@@ -1978,9 +2019,119 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
 /* harmony default export */ __webpack_exports__["default"] = ({
+  props: ['post_id'],
+  data: function data() {
+    return {
+      replyTo: {
+        name: '',
+        comment: '',
+        post_id: '',
+        parent_comment_id: null
+      },
+      name: '',
+      comment: '',
+      comments: []
+    };
+  },
   mounted: function mounted() {
-    console.log();
+    this.getCommentsApi();
+  },
+  methods: {
+    getCommentsApi: function getCommentsApi() {
+      var _this = this;
+
+      this.$store.dispatch('fetchComments', {
+        post_id: this.post_id
+      }).then(function (response) {
+        if (typeof response.data.data != 'undefined') {
+          _this.$store.commit('updateComments', response.data.data);
+        }
+
+        _this.comments = _this.$store.state.comments.comments;
+      }, function (error) {
+        console.log(error.response.data);
+      })["finally"](function () {});
+    },
+    processReply: function processReply(comment) {
+      this.replyTo.name = comment.name;
+      this.replyTo.comment = comment.comment;
+      this.replyTo.post_id = comment.post_id;
+      this.replyTo.comment_id = comment.comment_id;
+      this.replyTo.parent_comment_id = comment.parent_comment_id;
+    },
+    submitReply: function submitReply() {
+      var _this2 = this;
+
+      $('#replyForm').modal('toggle');
+      var data = {
+        name: this.name,
+        comment: this.comment,
+        post_id: this.replyTo.post_id,
+        parent_comment_id: this.replyTo.comment_id
+      };
+      this.$store.dispatch('commentPost', data).then(function (response) {
+        console.log(response);
+      }, function (error) {
+        console.log(error.response.data);
+      })["finally"](function () {});
+      this.$store.dispatch('fetchComments', {
+        post_id: this.post_id
+      }).then(function (response) {
+        if (typeof response.data.data != 'undefined') {
+          _this2.$store.commit('updateComments', response.data.data);
+        }
+
+        _this2.comments = response.data.data;
+      }, function (error) {
+        console.log(error.response.data);
+      })["finally"](function () {
+        _this2.name = '';
+        _this2.comment = '';
+        _this2.replyTo.name = '';
+        _this2.replyTo.comment = '';
+        _this2.replyTo.post_id = '';
+        _this2.replyTo.parent_comment_id = '';
+      });
+    }
   }
 });
 
@@ -37356,44 +37507,79 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _vm._m(0)
-}
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "card my-4" }, [
-      _c("h5", { staticClass: "card-header" }, [_vm._v("Leave a Comment:")]),
-      _vm._v(" "),
-      _c("div", { staticClass: "card-body" }, [
-        _c("form", { attrs: { onsubmit: "return false;" } }, [
-          _c("div", { staticClass: "form-group" }, [
-            _vm._v("\n        Name:\n        "),
-            _c("input", {
-              staticClass: "form-control",
-              attrs: { type: "text", name: "full_name" }
-            })
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "form-group" }, [
-            _vm._v("\n        Comment:\n        "),
-            _c("textarea", {
-              staticClass: "form-control",
-              attrs: { rows: "3" }
-            })
-          ]),
-          _vm._v(" "),
-          _c(
-            "button",
-            { staticClass: "btn btn-primary", attrs: { type: "submit" } },
-            [_vm._v("Submit")]
-          )
-        ])
+  return _c("div", { staticClass: "card my-4" }, [
+    _c("h5", { staticClass: "card-header" }, [_vm._v("Leave a Comment:")]),
+    _vm._v(" "),
+    _c("div", { staticClass: "card-body" }, [
+      _c("form", { attrs: { onsubmit: "return false;" } }, [
+        _c("div", { staticClass: "form-group" }, [
+          _vm._v("\n        Name:\n        "),
+          _c("input", {
+            directives: [
+              {
+                name: "model",
+                rawName: "v-model",
+                value: _vm.name,
+                expression: "name"
+              }
+            ],
+            staticClass: "form-control",
+            attrs: { type: "text", name: "full_name" },
+            domProps: { value: _vm.name },
+            on: {
+              input: function($event) {
+                if ($event.target.composing) {
+                  return
+                }
+                _vm.name = $event.target.value
+              }
+            }
+          })
+        ]),
+        _vm._v(" "),
+        _c("div", { staticClass: "form-group" }, [
+          _vm._v("\n        Comment:\n        "),
+          _c("textarea", {
+            directives: [
+              {
+                name: "model",
+                rawName: "v-model",
+                value: _vm.comment,
+                expression: "comment"
+              }
+            ],
+            staticClass: "form-control",
+            attrs: { rows: "3" },
+            domProps: { value: _vm.comment },
+            on: {
+              input: function($event) {
+                if ($event.target.composing) {
+                  return
+                }
+                _vm.comment = $event.target.value
+              }
+            }
+          })
+        ]),
+        _vm._v(" "),
+        _c(
+          "button",
+          {
+            staticClass: "btn btn-primary",
+            attrs: { type: "submit" },
+            on: {
+              click: function($event) {
+                return _vm.submitComment()
+              }
+            }
+          },
+          [_vm._v("Submit")]
+        )
       ])
     ])
-  }
-]
+  ])
+}
+var staticRenderFns = []
 render._withStripped = true
 
 
@@ -37415,68 +37601,262 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _vm._m(0)
+  return _c(
+    "div",
+    [
+      _c("comment-form", { attrs: { post_id: _vm.post_id } }),
+      _vm._v(" "),
+      _c(
+        "div",
+        {
+          staticClass: "modal fade",
+          attrs: {
+            id: "replyForm",
+            tabindex: "-1",
+            role: "dialog",
+            "aria-labelledby": "replyFormTitle",
+            "aria-hidden": "true"
+          }
+        },
+        [
+          _c(
+            "div",
+            {
+              staticClass: "modal-dialog modal-dialog-centered",
+              attrs: { role: "document" }
+            },
+            [
+              _c("div", { staticClass: "modal-content" }, [
+                _vm._m(0),
+                _vm._v(" "),
+                _c("div", { staticClass: "modal-body" }, [
+                  _vm._v("\n          Reply To: \n          "),
+                  _c("p", [_vm._v(_vm._s(_vm.replyTo.name))]),
+                  _vm._v("\n          Message: \n          "),
+                  _c("p", [_vm._v(_vm._s(_vm.replyTo.comment))]),
+                  _vm._v(" "),
+                  _c("form", { attrs: { onsubmit: "return false;" } }, [
+                    _c("div", { staticClass: "form-group" }, [
+                      _vm._v("\n              Name:\n              "),
+                      _c("input", {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: _vm.name,
+                            expression: "name"
+                          }
+                        ],
+                        staticClass: "form-control",
+                        attrs: { type: "text", name: "full_name" },
+                        domProps: { value: _vm.name },
+                        on: {
+                          input: function($event) {
+                            if ($event.target.composing) {
+                              return
+                            }
+                            _vm.name = $event.target.value
+                          }
+                        }
+                      })
+                    ]),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "form-group" }, [
+                      _vm._v("\n              Comment:\n              "),
+                      _c("textarea", {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: _vm.comment,
+                            expression: "comment"
+                          }
+                        ],
+                        staticClass: "form-control",
+                        attrs: { rows: "3" },
+                        domProps: { value: _vm.comment },
+                        on: {
+                          input: function($event) {
+                            if ($event.target.composing) {
+                              return
+                            }
+                            _vm.comment = $event.target.value
+                          }
+                        }
+                      })
+                    ])
+                  ])
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "modal-footer" }, [
+                  _c(
+                    "button",
+                    {
+                      staticClass: "btn btn-secondary",
+                      attrs: { type: "button", "data-dismiss": "modal" }
+                    },
+                    [_vm._v("Close")]
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "button",
+                    {
+                      staticClass: "btn btn-primary",
+                      attrs: { type: "button" },
+                      on: {
+                        click: function($event) {
+                          return _vm.submitReply()
+                        }
+                      }
+                    },
+                    [_vm._v("Reply")]
+                  )
+                ])
+              ])
+            ]
+          )
+        ]
+      ),
+      _vm._v(" "),
+      _vm._l(_vm.comments, function(comment, index) {
+        return _c("div", { staticClass: "media mb-4" }, [
+          _c("img", {
+            staticClass: "d-flex mr-3 rounded-circle",
+            attrs: { src: "http://placehold.it/50x50", alt: "" }
+          }),
+          _vm._v(" "),
+          _c("div", { staticClass: "media-body" }, [
+            _c("h5", { staticClass: "mt-0" }, [_vm._v(_vm._s(comment.name))]),
+            _vm._v("\n      " + _vm._s(comment.comment) + "\n      "),
+            _c("div", [
+              _c(
+                "a",
+                {
+                  attrs: {
+                    href: "#",
+                    "data-toggle": "modal",
+                    "data-target": "#replyForm"
+                  },
+                  on: {
+                    click: function($event) {
+                      return _vm.processReply(comment)
+                    }
+                  }
+                },
+                [_vm._v("Reply")]
+              )
+            ]),
+            _vm._v(" "),
+            comment.children
+              ? _c(
+                  "div",
+                  _vm._l(comment.children, function(children, childIndex) {
+                    return _c("div", { staticClass: "media mt-4" }, [
+                      _c("img", {
+                        staticClass: "d-flex mr-3 rounded-circle",
+                        attrs: { src: "http://placehold.it/50x50", alt: "" }
+                      }),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "media-body" }, [
+                        _c("h5", { staticClass: "mt-0" }, [
+                          _vm._v(_vm._s(children.name))
+                        ]),
+                        _vm._v(
+                          "\n            " +
+                            _vm._s(children.comment) +
+                            "\n            "
+                        ),
+                        _c("div", [
+                          _c(
+                            "a",
+                            {
+                              attrs: {
+                                href: "#",
+                                "data-toggle": "modal",
+                                "data-target": "#replyForm"
+                              },
+                              on: {
+                                click: function($event) {
+                                  return _vm.processReply(children)
+                                }
+                              }
+                            },
+                            [_vm._v("Reply")]
+                          )
+                        ]),
+                        _vm._v(" "),
+                        children.children
+                          ? _c(
+                              "div",
+                              _vm._l(children.children, function(
+                                grandchildren,
+                                grandChildIndex
+                              ) {
+                                return _c(
+                                  "div",
+                                  { staticClass: "media mt-4" },
+                                  [
+                                    _c("img", {
+                                      staticClass: "d-flex mr-3 rounded-circle",
+                                      attrs: {
+                                        src: "http://placehold.it/50x50",
+                                        alt: ""
+                                      }
+                                    }),
+                                    _vm._v(" "),
+                                    _c("div", { staticClass: "media-body" }, [
+                                      _c("h5", { staticClass: "mt-0" }, [
+                                        _vm._v(_vm._s(grandchildren.name))
+                                      ]),
+                                      _vm._v(
+                                        "\n                  " +
+                                          _vm._s(grandchildren.comment) +
+                                          "\n                "
+                                      )
+                                    ])
+                                  ]
+                                )
+                              }),
+                              0
+                            )
+                          : _vm._e()
+                      ])
+                    ])
+                  }),
+                  0
+                )
+              : _vm._e()
+          ])
+        ])
+      })
+    ],
+    2
+  )
 }
 var staticRenderFns = [
   function() {
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", [
-      _c("div", { staticClass: "media mb-4" }, [
-        _c("img", {
-          staticClass: "d-flex mr-3 rounded-circle",
-          attrs: { src: "http://placehold.it/50x50", alt: "" }
-        }),
-        _vm._v(" "),
-        _c("div", { staticClass: "media-body" }, [
-          _c("h5", { staticClass: "mt-0" }, [_vm._v("Commenter Name")]),
-          _vm._v(
-            "\n      Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue felis in faucibus.\n    "
-          )
-        ])
-      ]),
+    return _c("div", { staticClass: "modal-header" }, [
+      _c(
+        "h5",
+        { staticClass: "modal-title", attrs: { id: "exampleModalLongTitle" } },
+        [_vm._v("Your Message")]
+      ),
       _vm._v(" "),
-      _c("div", { staticClass: "media mb-4" }, [
-        _c("img", {
-          staticClass: "d-flex mr-3 rounded-circle",
-          attrs: { src: "http://placehold.it/50x50", alt: "" }
-        }),
-        _vm._v(" "),
-        _c("div", { staticClass: "media-body" }, [
-          _c("h5", { staticClass: "mt-0" }, [_vm._v("Commenter Name")]),
-          _vm._v(
-            "\n      Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue felis in faucibus.\n\n      "
-          ),
-          _c("div", { staticClass: "media mt-4" }, [
-            _c("img", {
-              staticClass: "d-flex mr-3 rounded-circle",
-              attrs: { src: "http://placehold.it/50x50", alt: "" }
-            }),
-            _vm._v(" "),
-            _c("div", { staticClass: "media-body" }, [
-              _c("h5", { staticClass: "mt-0" }, [_vm._v("Commenter Name")]),
-              _vm._v(
-                "\n          Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue felis in faucibus.\n        "
-              )
-            ])
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "media mt-4" }, [
-            _c("img", {
-              staticClass: "d-flex mr-3 rounded-circle",
-              attrs: { src: "http://placehold.it/50x50", alt: "" }
-            }),
-            _vm._v(" "),
-            _c("div", { staticClass: "media-body" }, [
-              _c("h5", { staticClass: "mt-0" }, [_vm._v("Commenter Name")]),
-              _vm._v(
-                "\n          Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue felis in faucibus.\n        "
-              )
-            ])
-          ])
-        ])
-      ])
+      _c(
+        "button",
+        {
+          staticClass: "close",
+          attrs: {
+            type: "button",
+            "data-dismiss": "modal",
+            "aria-label": "Close"
+          }
+        },
+        [_c("span", { attrs: { "aria-hidden": "true" } }, [_vm._v("×")])]
+      )
     ])
   }
 ]
@@ -53914,8 +54294,40 @@ var comments = {
     }
   },
   mutations: {
+    setCommentLists: function setCommentLists(state, payload) {
+      state.comments = payload;
+    },
     updateComments: function updateComments(state, payload) {
       Object.assign(state.comments, payload);
+    }
+  },
+  actions: {
+    fetchComments: function fetchComments(context, payload) {
+      var config = {
+        method: 'get',
+        url: "".concat(baseUrl, "/comments?post_id=").concat(payload.post_id)
+      };
+      return new Promise(function (resolve, reject) {
+        return axios(config).then(function (response) {
+          return resolve(response);
+        })["catch"](function (error) {
+          return reject(error);
+        });
+      });
+    },
+    commentPost: function commentPost(state, payload) {
+      var config = {
+        method: 'post',
+        url: "".concat(baseUrl, "/comments"),
+        data: payload
+      };
+      return new Promise(function (resolve, reject) {
+        return axios(config).then(function (response) {
+          return resolve(response);
+        })["catch"](function (error) {
+          return reject(error);
+        });
+      });
     }
   }
 };
