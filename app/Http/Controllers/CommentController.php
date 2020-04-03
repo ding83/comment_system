@@ -11,7 +11,11 @@ use Exception;
 
 class CommentController extends Controller
 {
-    /** get request comment **/
+    /**
+     * @param $id - post_id of the post
+     * @param $request - request data
+     * This function will fetch comments of post_id
+     **/
     public function getCommentIndex($id=null, Request $request)
     {
       try {
@@ -113,12 +117,16 @@ class CommentController extends Controller
       return response()->json(['error' => $e->getMessage()]);
     }
 
-    /** post request comment **/
+    /**
+     * @param $request - request data
+     * This function will process post comments request
+     **/
     public function postCommentIndex(Request $request)
     {
       try {
         $data = $request->all();
 
+        /** validate form input for required **/
         $validator = Validator::make($data, [
            'name' => 'required|string|max:50',
            'comment' => 'required',
